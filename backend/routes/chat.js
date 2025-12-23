@@ -3,7 +3,7 @@ import express from "express";
 import authMiddleware from "../middleware/authMiddleware.js";
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
-
+import User from "../models/User.js";
 const router = express.Router();
 
 // Get all conversations for logged-in user

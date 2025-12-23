@@ -29,7 +29,7 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
     };
 
     fetchMessages();
-    
+
     // Join conversation room
     if (socket) {
       socket.emit("join:conversation", conversation._id);
@@ -167,7 +167,8 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
           </div>
         ) : (
           messages.map((message) => {
-            const isOwn = message.sender._id === currentUser.id;
+            const currentUserId = currentUser._id || currentUser.id;
+            const isOwn = message.sender._id === currentUserId;
 
             return (
               <div
@@ -177,9 +178,7 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
                 }`}
               >
                 <div className={styles.messageBubble}>
-                  <div className={styles.messageContent}>
-                    {message.content}
-                  </div>
+                  <div className={styles.messageContent}>{message.content}</div>
                   <div className={styles.messageTime}>
                     {formatMessageTime(message.createdAt)}
                   </div>

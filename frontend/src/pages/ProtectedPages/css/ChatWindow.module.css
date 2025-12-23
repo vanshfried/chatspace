@@ -77,8 +77,18 @@
 
 .messageWrapper {
   display: flex;
-  margin-bottom: 12px;
-  animation: slideIn 0.2s ease-out;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.messageWrapper.own {
+  justify-content: flex-end;
+  padding-left: 20%;
+}
+
+.messageWrapper.other {
+  justify-content: flex-start;
+  padding-right: 20%;
 }
 
 @keyframes slideIn {
@@ -92,30 +102,23 @@
   }
 }
 
-.messageWrapper.own {
-  justify-content: flex-end;
-}
-
-.messageWrapper.other {
-  justify-content: flex-start;
-}
-
 .messageBubble {
-  max-width: 60%;
-  padding: 8px 12px;
-  border-radius: 8px;
+  max-width: 75%;
+  padding: 8px 12px 6px;
+  border-radius: 12px;
   word-wrap: break-word;
+  position: relative;
 }
 
 .own .messageBubble {
   background-color: #dcf8c6;
-  border-bottom-right-radius: 2px;
+  border-top-right-radius: 0;
 }
 
 .other .messageBubble {
-  background-color: #fff;
-  border-bottom-left-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border-top-left-radius: 0;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 .messageContent {
@@ -126,9 +129,10 @@
 }
 
 .messageTime {
-  font-size: 11px;
+  font-size: 10px;
   color: #667;
   text-align: right;
+  margin-top: 2px;
 }
 
 .typingIndicator {
@@ -214,4 +218,12 @@
 .sendButton:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.own .messageContent {
+  text-align: left;
+}
+
+.other .messageContent {
+  text-align: left;
 }
