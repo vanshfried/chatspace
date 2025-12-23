@@ -1,6 +1,6 @@
 import API from "../../api/api";
 import { useNavigate } from "react-router-dom";
-import styles from "../css/Homepage.module.css";
+import styles from "../css/HomePage.module.css";
 const Homepage = () => {
   const navigate = useNavigate();
 
