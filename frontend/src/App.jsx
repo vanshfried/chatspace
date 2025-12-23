@@ -4,12 +4,13 @@ import SignIn from "./pages/Openpages/pages/SignIn.jsx";
 import Homepage from "./pages/ProtectedPages/pages/Homepage.jsx";
 import UserProtectedRoutes from "./components/UserProtectedRoutes.jsx";
 import Header from "./pages/ProtectedPages/components/Header.jsx";
-
+import NotFound from "./pages/Openpages/pages/NotFound.jsx";
 function App() {
   return (
     <Router>
       <Routes>
         {/* Public routes (No Header here) */}
+        <Route path="*" element={<NotFound />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
 
