@@ -1,0 +1,169 @@
+/* GLOBAL SAFETY */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.form {
+  width: 100%;
+  max-width: 380px;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  animation: floatIn 0.6s ease;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.title {
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  font-size: 15px;
+  color: #333;
+  background: #f9fafb;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.input::placeholder {
+  color: #9aa4b2;
+}
+
+.input:focus {
+  background: #fff;
+  border-color: #764ba2;
+  box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.15);
+}
+
+.button {
+  margin-top: 6px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(118, 75, 162, 0.4);
+}
+
+.link {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 14px;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+@media (max-width: 480px) {
+  .form {
+    padding: 24px;
+    border-radius: 12px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .input {
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .button {
+    font-size: 15px;
+    padding: 12px;
+  }
+}
+/* Add this to your SignUp.module.css */
+
+.passwordWrapper {
+  position: relative; /* Crucial for absolute positioning of the icon */
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Adjust the password input to make room for the icon */
+.passwordWrapper .input {
+  padding-right: 48px;
+  margin-bottom: 18px; /* Maintain consistent spacing */
+}
+
+.eyeButton {
+  position: absolute;
+  right: 12px;
+  top: 13px; /* Adjust based on your input height */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9aa4b2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: color 0.2s ease;
+  z-index: 10;
+}
+
+.eyeButton:hover {
+  color: #764ba2;
+}
+
+/* Optional: Spinner animation if you add a loading state */
+.spinner {
+  animation: rotate 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
