@@ -14,9 +14,9 @@ const sendToken = (res, user, statusCode = 200) => {
   res
     .status(statusCode)
     .cookie("token", token, {
-      httpOnly: true, // JS cannot access
-      secure: false, // true in production (HTTPS)
-      sameSite: "lax",
+      httpOnly: true,
+      secure: true, // ✅ REQUIRED on Render (HTTPS)
+      sameSite: "none", // ✅ REQUIRED for Vercel ↔ Render
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
     .json({
@@ -91,7 +91,13 @@ router.post("/signin", async (req, res) => {
  * LOGOUT
  */
 router.post("/logout", (req, res) => {
-  res.clearCookie("token").json({ message: "Logged out successfully" });
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    })
+    .json({ message: "Logged out successfully" });
 });
 
 router.get("/me", authMiddleware, (req, res) => {
