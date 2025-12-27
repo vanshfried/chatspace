@@ -13,21 +13,17 @@ const messageSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    content: {
-      type: String,
-      required: true,
-    },
+
+    content: { type: String, required: true }, // ENCRYPTED content
+    iv: { type: String, required: true },
+    authTag: { type: String, required: true },
+
     messageType: {
       type: String,
       enum: ["text", "image", "file"],
       default: "text",
     },
-    readBy: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     status: {
       type: String,
       enum: ["sent", "delivered", "read"],

@@ -4,6 +4,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import Conversation from "../models/Conversation.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
+import { encrypt, decrypt } from "../utils/encryption.js";
 const router = express.Router();
 
 // Get all conversations for logged-in user
@@ -55,7 +56,12 @@ router.get("/conversations/:id/messages", authMiddleware, async (req, res) => {
       .populate("sender", "username")
       .sort({ createdAt: 1 });
 
-    res.json(messages);
+    const decryptedMessages = messages.map((msg) => ({
+      ...msg.toObject(),
+      content: decrypt(msg),
+    }));
+
+    res.json(decryptedMessages);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch messages" });
   }
@@ -66,19 +72,29 @@ router.post("/messages", authMiddleware, async (req, res) => {
   try {
     const { conversationId, content } = req.body;
 
+    const encrypted = encrypt(content);
+
     const message = await Message.create({
       conversationId,
       sender: req.user.id,
-      content,
+      content: encrypted.content,
+      iv: encrypted.iv,
+      authTag: encrypted.authTag,
     });
 
-    // Update conversation's lastMessage
     await Conversation.findByIdAndUpdate(conversationId, {
       lastMessage: message._id,
     });
 
     await message.populate("sender", "username");
-    res.status(201).json(message);
+
+    // Decrypt before sending to client
+    const decryptedMessage = {
+      ...message.toObject(),
+      content: decrypt(message),
+    };
+
+    res.status(201).json(decryptedMessage);
   } catch (error) {
     res.status(500).json({ message: "Failed to send message" });
   }
