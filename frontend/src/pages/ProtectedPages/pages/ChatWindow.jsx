@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import API from "../../api/api";
 import styles from "../css/ChatWindow.module.css";
+import CryptoJS from "crypto-js";
+
+const SECRET_KEY = import.meta.env.VITE_SECRET_KEY;
 
 const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
   const [messages, setMessages] = useState([]);
@@ -15,6 +18,16 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
   );
   const isOnline = onlineUsers.has(otherParticipant?._id);
 
+  const decryptMessage = (encryptedMessage) => {
+    try {
+      const bytes = CryptoJS.AES.decrypt(encryptedMessage, SECRET_KEY);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    } catch (err) {
+      console.error("Failed to decrypt message", err);
+      return encryptedMessage;
+    }
+  };
+
   // Fetch messages when conversation changes
   useEffect(() => {
     const fetchMessages = async () => {
@@ -22,7 +35,7 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
         const { data } = await API.get(
           `/api/chat/conversations/${conversation._id}/messages`
         );
-        setMessages(data);
+        setMessages(data); // store encrypted content
       } catch (error) {
         console.error("Failed to fetch messages", error);
       }
@@ -30,13 +43,11 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
 
     fetchMessages();
 
-    // Join conversation room
     if (socket) {
       socket.emit("join:conversation", conversation._id);
     }
 
     return () => {
-      // Leave conversation room on cleanup
       if (socket) {
         socket.emit("leave:conversation", conversation._id);
       }
@@ -47,14 +58,12 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
   useEffect(() => {
     if (!socket) return;
 
-    // Listen for new messages
     const handleMessageReceive = (message) => {
       if (message.conversationId === conversation._id) {
         setMessages((prev) => [...prev, message]);
       }
     };
 
-    // Listen for typing updates
     const handleTypingUpdate = ({ userId, username, isTyping }) => {
       if (userId !== currentUser.id) {
         setTypingUser(isTyping ? username : null);
@@ -70,7 +79,7 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
     };
   }, [socket, conversation._id, currentUser.id]);
 
-  // Auto-scroll to bottom
+  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -84,17 +93,11 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
       });
     }
 
-    // Clear previous timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
-    // Stop typing after 2 seconds of inactivity
     typingTimeoutRef.current = setTimeout(() => {
       if (socket) {
-        socket.emit("typing:stop", {
-          conversationId: conversation._id,
-        });
+        socket.emit("typing:stop", { conversationId: conversation._id });
       }
       setIsTyping(false);
     }, 2000);
@@ -102,30 +105,29 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-
     if (!newMessage.trim()) return;
+
+    const encryptedMessage = CryptoJS.AES.encrypt(
+      newMessage.trim(),
+      SECRET_KEY
+    ).toString();
 
     try {
       const { data } = await API.post("/api/chat/messages", {
         conversationId: conversation._id,
-        content: newMessage.trim(),
+        content: encryptedMessage,
       });
 
-      // Emit through socket for real-time update
       if (socket) {
         socket.emit("message:send", data);
-        socket.emit("typing:stop", {
-          conversationId: conversation._id,
-        });
+        socket.emit("typing:stop", { conversationId: conversation._id });
       }
 
+      // Store encrypted content; decrypt only when rendering
       setMessages((prev) => [...prev, data]);
       setNewMessage("");
       setIsTyping(false);
-
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     } catch (error) {
       console.error("Failed to send message", error);
     }
@@ -178,7 +180,9 @@ const ChatWindow = ({ conversation, currentUser, socket, onlineUsers }) => {
                 }`}
               >
                 <div className={styles.messageBubble}>
-                  <div className={styles.messageContent}>{message.content}</div>
+                  <div className={styles.messageContent}>
+                    {decryptMessage(message.content)}
+                  </div>
                   <div className={styles.messageTime}>
                     {formatMessageTime(message.createdAt)}
                   </div>
